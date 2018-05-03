@@ -1,11 +1,14 @@
+"""Contains the Instrument class."""
 from .note import Note
 from . import flags
 
 class Instrument(list):
+    """Represents a single track (e.g. ExpertSingle)."""
     difficulty = flags.EXPERT
     kind = flags.GUITAR
 
     def __init__(self, kind=None, difficulty=None, notes=None):
+        super(__class__, self).__init__()
         if kind is not None:
             if not isinstance(kind, flags.Instruments):
                 raise TypeError('Expected an instrument ennum, got {}'.format(
@@ -24,6 +27,21 @@ class Instrument(list):
             except TypeError:
                 raise
 
+    def __repr__(self):
+        return '<Instrument, first notes: {}>'.format(
+            super(__class__, self[:5]).__repr__()
+        )
+
+    def __str__(self):
+        result = '['
+        result += self.difficulty.value
+        result += self.kind.value
+        result += ']\n{\n'
+        for note in self:
+            result += str(note) + '\n'
+        result += '}'
+        return result
+
     @staticmethod
     def _check_note(note, kind=()):
         if not isinstance(note, Note):
@@ -39,9 +57,12 @@ class Instrument(list):
         except TypeError:
             raise
 
-        super(type(self), self).append(note)
+        super(__class__, self).append(note)
 
     def add(self, note, kind=()):
+        """Add a note to this track.
+        It will be automatically inserted in the correct position.
+        """
         try:
             self._check_note(note, kind)
         except TypeError:

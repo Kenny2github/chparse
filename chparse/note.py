@@ -1,13 +1,16 @@
-from . import flags
+"""Contains the Note class."""
+from . import flags as _flags
 
 class Note(object):
+    """Represents a single note - i.e. 0 = X 0 0"""
     time = 0
-    kind = flags.NOTE
+    kind = _flags.NOTE
     fret = 0
     length = 0
-    flags = 0
+    flags = _flags.NONE
 
-    def __init__(self, time, kind=flags.NOTE, fret=0, length=0, flag=0):
+    def __init__(self, time, kind=_flags.NOTE,
+                 fret=0, length=0, flag=_flags.NONE):
         self.time = time
         self.kind = kind
         self.fret = fret
@@ -32,7 +35,7 @@ class Note(object):
         result += ' = '
         result += self.kind.value + ' '
         if self.is_open:
-            result += flags.OPEN.value
+            result += _flags.OPEN.value #pylint: disable=no-member
         else:
             result += str(self.fret)
         result += ' '
@@ -43,10 +46,10 @@ class Note(object):
         result2 += ' = '
         result2 += self.kind.value + ' '
         if self.is_tap:
-            result2 += str(flags.TAP.value)
+            result2 += str(_flags.TAP.value)
         elif self.is_forced:
-            result2 += str(flags.FORCED.value)
-        else:
+            result2 += str(_flags.FORCED.value)
+        else: #pylint: enable=no-member
             return result
         result2 += ' 0'
         result += '\n' + result2
@@ -54,25 +57,30 @@ class Note(object):
 
     @property
     def is_tap(self):
-        return flags.TAP in self.flag
+        """Return whether this Note is a tap note."""
+        return _flags.TAP in self.flags
 
     @property
     def is_open(self):
-        return flags.OPEN in self.flag
+        """Return whether this Note is an open note."""
+        return _flags.OPEN in self.flags
 
     @property
     def is_live(self):
-        return flags.GHLIVE in self.flag
+        """Return whether this Note is in a GH Live track."""
+        return _flags.GHLIVE in self.flags
 
     @property
     def is_forced(self):
+        """Return whether this Note is forced (HOPO flipped)."""
         return (
-            (flags.LIVEFORCED in self.flag)
+            (_flags.LIVEFORCED in self.flags)
             if (self.is_live)
-            else (flags.FORCED in self.flag)
+            else (_flags.FORCED in self.flags)
         )
 
-class Event(object):
+class Event(object): #pylint: disable=too-few-public-methods
+    """Represents the special E note for events."""
     time = 0
     event = ''
 

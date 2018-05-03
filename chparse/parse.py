@@ -1,3 +1,4 @@
+"""Parse (or unparse) a file to/from a Chart object!"""
 import re
 from .note import Note, Event
 from .instrument import Instrument
@@ -6,20 +7,42 @@ from . import flags
 
 class ParseError(Exception):
     """The chart is invalid."""
+    pass
 
-def parse(filename_or_obj):
-    fileobj = filename_or_obj
-    if isinstance(fileobj, str):
-        fileobj = open(fileobj)
+def load(fileobj):
+    """Load a chart from a file object."""
+    if not hasattr(fileobj, 'readline'):
+        raise TypeError('fileobj must be a file object '
+                        '(or something with a "readline" method)')
+    instruments = []
+    chart = None
+    line = True
+    while line:
+        line = fileobj.readline()
+        if not line:
+            break
+        if line.startswith('['):
+            try:
+                inst = _parse_raw_inst(fileobj, line)
+            except Exception as exc:
+                raise ParseError(str(exc))
+            if isinstance(inst, dict): #metadata arrived
+                chart = Chart(inst)
+                for i in instruments:
+                    chart.add_instrument(i)
+            elif chart is None:
+                instruments.append(inst)
+            elif isinstance(inst, tuple):
+                chart._raw_sync_track = inst[1]
+    return chart
 
 def _parse_raw_inst(fileobj, first_line):
     try:
         raw_name = flags.Instruments(re.match(r'\[([a-zA-Z]+)\]', first_line)
-                                 .group(1))
+                                     .group(1))
     except ValueError:
         return _parse_inst(fileobj, first_line)
     if raw_name == flags.METADATA:
-        lines = []
         line = ''
         data = {}
         while line != '}':
@@ -36,9 +59,15 @@ def _parse_raw_inst(fileobj, first_line):
             data[name] = value
         return data
     if raw_name == flags.SYNC:
-        return None
+        lines = ['[' + raw_name + ']\n']
+        line = ''
+        while line != '}':
+            line = fileobj.read_line()
+            lines.append(line)
+        lines = ''.join(lines)
+        return (flags.SYNC, lines)
     if raw_name == flags.EVENTS:
-        inst = Instrument(kind=raw_name)
+        inst = Instrument(kind=raw_name, difficulty=flags.NA)
         line = ''
         while line != '}':
             line = fileobj.read_line()
@@ -72,11 +101,28 @@ def _parse_inst(fileobj, first_line):
         if kind == flags.EVENT.value:
             inst.append(Event(time, evt.strip('"')))
         else:
-            if inst.kind in (flags.GHL_GUITAR, flags.GHL_BASS):
-                if raw_fret <= 5:
-                    inst.append(Note(time, kind=flags.NoteTypes(kind),
-                                     fret=int(raw_fret), length=int(length),
-                                     flag=flags.GHLIVE))
-                else:
-                    flag = flags.Flags(int(raw_fret)) | flags.GHLIVE
-                    inst[-1].flag = flag
+            if (inst.kind in (flags.GHL_GUITAR, flags.GHL_BASS)
+                    and raw_fret <= 5) or (raw_fret <= 4):
+                inst.append(Note(time, kind=flags.NoteTypes(kind),
+                                 fret=int(raw_fret), length=int(length),
+                                 flag=flags.GHLIVE))
+            else:
+                flag = flags.Flags(int(raw_fret)) | flags.GHLIVE
+                inst[-1].flag = flag
+    return inst
+
+def dump(chart, fileobj):
+    fileobj.write('[' + flags.METADATA.value + ']\n')
+    fileobj.write('{\n')
+    for key, value in chart.__dict__.items():
+        fileobj.write('  {} = {}\n'.format(
+            key, ((('"' + value + '"') if ' ' in value else value)
+                  if isinstance(value, str)
+                  else value)
+        ))
+    fileobj.write('}\n\n')
+    fileobj.write(chart._raw_sync_track + '\n')
+    for diffic in (flags.NA, flags.EASY, flags.MEDIUM,
+                   flags.HARD, flags.EXPERT):
+        for kind, inst in chart.instruments[diffic].items():
+            fileobj.write(str(inst) + '\n\n')
