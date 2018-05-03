@@ -10,7 +10,7 @@ with open('chparse\\__init__.py') as f:
 del f, rdme
 
 setup(
-    name="mw-api-client",
+    name="chparse",
     version=version,
     description="Parse Clone Hero charts with ease!.",
     long_description=longdesc,
