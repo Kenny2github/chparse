@@ -1,0 +1,86 @@
+[Song]
+{
+  Name = "Test"
+  Artist = "K2CH"
+  Charter = "K2CH"
+  Offset = 0
+  Resolution = 192
+  Player2 = bass
+  Difficulty = 0
+  PreviewStart = 0
+  PreviewEnd = 0
+  Genre = "rock"
+  MediaType = "cd"
+}
+[SyncTrack]
+{
+  0 = TS 4
+  0 = B 120000
+}
+[Events]
+{
+  0 = E "section Start"
+}
+[ExpertSingle]
+{
+  0 = N 0 0
+  96 = N 1 96
+  96 = N 5 0 
+  192 = N 2 0
+  192 = N 6 0 
+  288 = N 7 0
+}
+[HardSingle]
+{
+  0 = N 0 0
+  48 = N 1 0
+  96 = N 2 0
+}
+[MediumSingle]
+{
+  0 = N 0 0
+  96 = N 1 0
+  192 = N 2 0
+}
+[EasySingle]
+{
+  0 = N 0 0
+  96 = N 0 0
+  192 = N 0 0
+}
+[ExpertDoubleGuitar]
+{
+  0 = N 7 0
+}
+[ExpertDoubleBass]
+{
+  0 = N 7 0
+}
+[ExpertDoubleRhythm]
+{
+  0 = N 7 0
+}
+[ExpertKeyboard]
+{
+  0 = N 7 0
+}
+[ExpertDrums]
+{
+  0 = N 0 0
+}
+[ExpertGHLGuitar]
+{
+  0 = N 3 0
+  0 = E solo
+  96 = N 4 0
+  192 = N 8 0
+  288 = N 0 0
+  384 = N 1 0
+  480 = N 2 0
+  576 = N 7 0
+  576 = E soloend
+}
+[ExpertGHLBass]
+{
+  0 = N 7 0
+}

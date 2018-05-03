@@ -29,3 +29,5 @@ Assuming your .chart file is named "notes.chart"...
 """
 from .parse import load
 from .flags import * #pylint: disable=wildcard-import
+
+__version__ = '0.0.0'

@@ -1,10 +1,19 @@
 from setuptools import setup
+import re
+
+with open('chparse\\__init__.py') as f:
+    content = f.read()
+    longdesc = re.match(r'^"""([\s\S]+?)"""', content).group(1).strip()
+    with open('README.rst', 'w') as rdme:
+        rdme.write(longdesc)
+    version = re.search(r'__version__\s*=\s*"([^"]+)"', content).group(1)
+del f, rdme
 
 setup(
     name="mw-api-client",
-    version="0.0.0",
+    version=version,
     description="Parse Clone Hero charts with ease!.",
-    long_description="",
+    long_description=longdesc,
     url="https://github.com/Kenny2github/chparse",
     author="Ken Hilton",
     license="GPLv3+",
@@ -19,4 +28,6 @@ setup(
     keywords='file format parser',
     packages=['chparse'],
     python_requires='>=2.7',
+    test_suite='nose.collector',
+    tests_require=['nose'],
 )

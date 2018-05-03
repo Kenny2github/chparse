@@ -1,4 +1,5 @@
 *.chart
+!chparse/tests/Test.chart
 *.egg-info
 __pycache__/
 build/
