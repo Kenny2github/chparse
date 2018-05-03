@@ -17,7 +17,7 @@ with open(path.join(path.dirname(__file__), 'Test.chart')) as chartfile:
     # This is to prevent locking up the real file in case the script is
     # unable to close it, since never closing a StringIO isn't too bad.
     # The file in question is also small enough to be held completely in memory.
-    chart = io.StringIO(chartfile.read())
+    chart = StringIO(chartfile.read())
 
 GLOBALS = {}
 

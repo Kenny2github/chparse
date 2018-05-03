@@ -34,6 +34,8 @@ def load(fileobj):
                 instruments.append(inst)
             elif isinstance(inst, tuple):
                 chart._raw_sync_track = inst[1]
+            else:
+                chart.add_instrument(inst)
     return chart
 
 def _parse_raw_inst(fileobj, first_line):
@@ -45,11 +47,11 @@ def _parse_raw_inst(fileobj, first_line):
     if raw_name == flags.METADATA:
         line = ''
         data = {}
-        while line != '}':
-            line = fileobj.read_line()
-            if line in '{}':
+        while line.strip() != '}':
+            line = fileobj.readline()
+            if line.strip() in '{}':
                 continue
-            match = re.search(r'([A-Za-z]+)\s*=\s*(.*)', line)
+            match = re.search(r'([A-Za-z]+[A-Za-z0-9_]*)\s*=\s*(.*)', line)
             name = match.group(1)
             value = match.group(2)
             try:
@@ -59,19 +61,19 @@ def _parse_raw_inst(fileobj, first_line):
             data[name] = value
         return data
     if raw_name == flags.SYNC:
-        lines = ['[' + raw_name + ']\n']
+        lines = ['[' + raw_name.value + ']\n']
         line = ''
-        while line != '}':
-            line = fileobj.read_line()
+        while line.strip() != '}':
+            line = fileobj.readline()
             lines.append(line)
         lines = ''.join(lines)
         return (flags.SYNC, lines)
     if raw_name == flags.EVENTS:
         inst = Instrument(kind=raw_name, difficulty=flags.NA)
         line = ''
-        while line != '}':
-            line = fileobj.read_line()
-            if line in '{}':
+        while line.strip() != '}':
+            line = fileobj.readline()
+            if line.strip() in '{}':
                 continue
             match = re.search(r'([0-9]+)\s*=\s*'
                               + flags.EVENT.value
@@ -90,31 +92,42 @@ def _parse_inst(fileobj, first_line):
     inst = Instrument(kind=flags.Instruments(kind),
                       difficulty=flags.Difficulties(difficulty))
     line = ''
-    while line != '}':
-        line = fileobj.read_line()
-        if line in '{}':
+    while line.strip() != '}':
+        line = fileobj.readline()
+        if line.strip() in '{}':
             continue
-        match = re.search(r'([0-9]+)\s*=\s*([A-Z])\s+\
-(?:([0-9]+)\s+([0-9]+)|"?[a-zA-Z]+"?)', line)
-        time, kind, raw_fret, length, evt = match.groups()
-        time = int(time)
-        if kind == flags.EVENT.value:
-            inst.append(Event(time, evt.strip('"')))
-        else:
-            if (inst.kind in (flags.GHL_GUITAR, flags.GHL_BASS)
-                    and raw_fret <= 5) or (raw_fret <= 4):
-                inst.append(Note(time, kind=flags.NoteTypes(kind),
-                                 fret=int(raw_fret), length=int(length),
-                                 flag=flags.GHLIVE))
+        match = re.search(r'([0-9]+)\s*=\s*([A-Z])\s+'
+                          + r'([0-9]+)\s+([0-9]+)', line)
+        if match is not None:
+            time, kind, raw_fret, length = match.groups()
+            time, raw_fret, length = int(time), int(raw_fret), int(length)
+            if inst.kind in (flags.GHL_GUITAR, flags.GHL_BASS):
+                extraflag = flags.GHLIVE
             else:
-                flag = flags.Flags(int(raw_fret)) | flags.GHLIVE
+                extraflag = flags.NONE
+            if (extraflag == flags.GHLIVE and raw_fret <= 5) or (raw_fret <= 4):
+                inst.append(Note(time, kind=flags.NoteTypes(kind),
+                                 fret=raw_fret, length=length,
+                                 flag=extraflag))
+            elif flags.Flags(raw_fret) == flags.OPEN:
+                inst.append(Note(time, kind=flags.NoteTypes(kind),
+                                 fret=0, length=length,
+                                 flag=flags.OPEN | extraflag))
+            else:
+                flag = flags.Flags(raw_fret) | extraflag
                 inst[-1].flag = flag
+        else:
+            time, kind, evt = re.search(r'([0-9]+)\s*=\s*(E)\s+"?([a-zA-Z]+)"?',
+                                        line).groups()
+            inst.append(Event(int(time), evt.strip('"')))
     return inst
 
 def dump(chart, fileobj):
     fileobj.write('[' + flags.METADATA.value + ']\n')
     fileobj.write('{\n')
     for key, value in chart.__dict__.items():
+        if key.startswith('_'):
+            continue
         fileobj.write('  {} = {}\n'.format(
             key, ((('"' + value + '"') if ' ' in value else value)
                   if isinstance(value, str)

@@ -1,5 +1,5 @@
 """Contains the Instrument class."""
-from .note import Note
+from .note import Note, Event
 from . import flags
 
 class Instrument(list):
@@ -28,11 +28,18 @@ class Instrument(list):
                 raise
 
     def __repr__(self):
+        first_notes = list(self[:5])
         return '<Instrument, first notes: {}>'.format(
-            super(__class__, self[:5]).__repr__()
+            repr(first_notes)
         )
 
     def __str__(self):
+        if self.kind == flags.EVENTS:
+            result = '[' + self.kind.value + ']\n{\n'
+            for note in self:
+                result += str(note) + '\n'
+            result += '}'
+            return result
         result = '['
         result += self.difficulty.value
         result += self.kind.value
@@ -44,7 +51,7 @@ class Instrument(list):
 
     @staticmethod
     def _check_note(note, kind=()):
-        if not isinstance(note, Note):
+        if not isinstance(note, (Note, Event)):
             raise TypeError('Expected Note, got {.__name__}'.format(type(note)))
         if kind != () and note.kind not in kind:
             raise TypeError('Expected Note of type {} but got {}'.format(

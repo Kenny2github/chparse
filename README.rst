@@ -1,4 +1,3 @@
-"""
 chparse - Parse Clone Hero charts with ease!
 
 Installation
@@ -26,8 +25,3 @@ Assuming your .chart file is named "notes.chart"...
 
     >>> chart.instruments[chparse.EXPERT][chparse.GUITAR].notes[0]
     <Note: 0 = N 3 0 (<Flags.NONE: 0>)>
-"""
-from .parse import load, dump
-from .flags import * #pylint: disable=wildcard-import
-
-__version__ = "0.0.0"

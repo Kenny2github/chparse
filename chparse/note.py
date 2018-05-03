@@ -35,7 +35,7 @@ class Note(object):
         result += ' = '
         result += self.kind.value + ' '
         if self.is_open:
-            result += _flags.OPEN.value #pylint: disable=no-member
+            result += str(_flags.OPEN.value) #pylint: disable=no-member
         else:
             result += str(self.fret)
         result += ' '
