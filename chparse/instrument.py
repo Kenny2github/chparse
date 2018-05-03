@@ -5,7 +5,7 @@ class Instrument(list):
     difficulty = flags.EXPERT
     kind = flags.GUITAR
 
-    def __init__(self, kind=None, difficulty=None, notes=Nonee):
+    def __init__(self, kind=None, difficulty=None, notes=None):
         if kind is not None:
             if not isinstance(kind, flags.Instruments):
                 raise TypeError('Expected an instrument ennum, got {}'.format(
@@ -33,11 +33,19 @@ class Instrument(list):
                 kind.value, note.kind.value
             ))
 
-    def append(self, note):
+    def append(self, note, kind=()):
         try:
-            self._check_note(note, flags.NOTE | flags.STAR)
+            self._check_note(note, kind)
         except TypeError:
             raise
 
         super(type(self), self).append(note)
-        self.sort(
+
+    def add(self, note, kind=()):
+        try:
+            self._check_note(note, kind)
+        except TypeError:
+            raise
+
+        self.append(note)
+        self.sort()
