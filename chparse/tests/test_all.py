@@ -5,7 +5,7 @@ from os import path
 from io import StringIO
 import chparse
 from chparse.chart import Chart
-from chparse.note import Note, Event
+from chparse.note import Note, Event, SyncEvent
 from chparse.instrument import Instrument
 from chparse import flags
 
@@ -49,14 +49,14 @@ class TestAll(TestCase):
         self._load_if_not_loaded()
         notes = GLOBALS['chartobj'].instruments[flags.EXPERT][
             flags.GUITAR
-        ].notes
+        ]
         self.assertTrue(isinstance(notes[0], Note))
         self.assertTrue(notes[1].is_forced)
         self.assertTrue(notes[2].is_tap)
         self.assertTrue(notes[3].is_open)
         notes = GLOBALS['chartobj'].instruments[flags.EXPERT][
             flags.GHL_GUITAR
-        ].notes
+        ]
         self.assertTrue(isinstance(notes[0], Note))
         self.assertTrue(isinstance(notes[1], Event))
         self.assertTrue(notes[1].event == 'solo')
@@ -66,4 +66,11 @@ class TestAll(TestCase):
         self._load_if_not_loaded()
         track = GLOBALS['chartobj'].instruments[flags.NA][flags.EVENTS]
         self.assertTrue(isinstance(track, Instrument))
-        self.assertTrue(isinstance(track.notes[0], Event))
+        self.assertTrue(isinstance(track[0], Event))
+
+    def test_sync(self):
+        """Assert that the SyncTrack track works."""
+        self._load_if_not_loaded()
+        track = GLOBALS['chartobj'].instruments[flags.NA][flags.SYNC]
+        self.assertTrue(isinstance(track, Instrument))
+        self.assertTrue(isinstance(track[0], SyncEvent))

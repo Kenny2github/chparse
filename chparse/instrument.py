@@ -1,5 +1,5 @@
 """Contains the Instrument class."""
-from .note import Note, Event
+from .note import Note, Event, SyncEvent
 from . import flags
 
 class Instrument(list):
@@ -51,7 +51,7 @@ class Instrument(list):
 
     @staticmethod
     def _check_note(note, kind=()):
-        if not isinstance(note, (Note, Event)):
+        if not isinstance(note, (Note, Event, SyncEvent)):
             raise TypeError('Expected Note, got {.__name__}'.format(type(note)))
         if kind != () and note.kind not in kind:
             raise TypeError('Expected Note of type {} but got {}'.format(

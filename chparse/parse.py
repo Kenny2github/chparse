@@ -1,6 +1,6 @@
 """Parse (or unparse) a file to/from a Chart object!"""
 import re
-from .note import Note, Event
+from .note import Note, Event, SyncEvent
 from .instrument import Instrument
 from .chart import Chart
 from . import flags
@@ -32,8 +32,6 @@ def load(fileobj):
                     chart.add_instrument(i)
             elif chart is None:
                 instruments.append(inst)
-            elif isinstance(inst, tuple):
-                chart._raw_sync_track = inst[1]
             else:
                 chart.add_instrument(inst)
     return chart
@@ -61,13 +59,19 @@ def _parse_raw_inst(fileobj, first_line):
             data[name] = value
         return data
     if raw_name == flags.SYNC:
-        lines = ['[' + raw_name.value + ']\n']
+        inst = Instrument(kind=raw_name, difficulty=flags.NA)
         line = ''
         while line.strip() != '}':
             line = fileobj.readline()
-            lines.append(line)
-        lines = ''.join(lines)
-        return (flags.SYNC, lines)
+            if line.strip() in '{}':
+                continue
+            match = re.search(r'([0-9]+)\s*=\s*([A-Z]{1,2})\s+([0-9]+)', line)
+            time = int(match.group(1))
+            kind = match.group(2)
+            value = int(match.group(3))
+            inst.append(SyncEvent(time, kind, value))
+            inst.sort()
+        return inst
     if raw_name == flags.EVENTS:
         inst = Instrument(kind=raw_name, difficulty=flags.NA)
         line = ''
@@ -115,7 +119,7 @@ def _parse_inst(fileobj, first_line):
                                  flag=flags.OPEN | extraflag))
             else:
                 flag = flags.Flags(raw_fret) | extraflag
-                inst[-1].flag = flag
+                inst[-1].flags = flag
         else:
             time, kind, evt = re.search(r'([0-9]+)\s*=\s*(E)\s+"?([a-zA-Z]+)"?',
                                         line).groups()

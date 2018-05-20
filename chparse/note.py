@@ -55,6 +55,36 @@ class Note(object):
         result += '\n' + result2
         return result
 
+    def __cmp__(self, other):
+        if not isinstance(other, (Note, Event, SyncEvent)):
+            raise TypeError('Cannot compare Note with {.__name__}'
+                            .format(type(other)))
+        return (-1
+                if self.time < other.time
+                else (1
+                      if self.time > other.time
+                      else 0
+                )
+        )
+
+    def __lt__(self, other):
+        return self.__cmp__(other) < 0
+
+    def __le__(self, other):
+        return self.__cmp__(other) <= 0
+
+    def __eq__(self, other):
+        return self.__cmp__(other) == 0
+
+    def __ne__(self, other):
+        return self.__cmp__(other) != 0
+
+    def __gt__(self, other):
+        return self.__cmp__(other) > 0
+
+    def __ge__(self, other):
+        return self.__cmp__(other) >= 0
+
     @property
     def is_tap(self):
         """Return whether this Note is a tap note."""
@@ -93,3 +123,80 @@ class Event(object): #pylint: disable=too-few-public-methods
 
     def __str__(self):
         return '  {} = E {}'.format(self.time, self.event)
+
+    def __cmp__(self, other):
+        if not isinstance(other, (Note, Event, SyncEvent)):
+            raise TypeError('Cannot compare Event with {.__name__}'
+                            .format(type(other)))
+        return (-1
+                if self.time < other.time
+                else (1
+                      if self.time > other.time
+                      else 0
+                )
+        )
+
+    def __lt__(self, other):
+        return self.__cmp__(other) < 0
+
+    def __le__(self, other):
+        return self.__cmp__(other) <= 0
+
+    def __eq__(self, other):
+        return self.__cmp__(other) == 0
+
+    def __ne__(self, other):
+        return self.__cmp__(other) != 0
+
+    def __gt__(self, other):
+        return self.__cmp__(other) > 0
+
+    def __ge__(self, other):
+        return self.__cmp__(other) >= 0
+
+
+class SyncEvent(object):
+    """Represents the special TS and B notes in the SyncTrack instrument."""
+    time = 0
+    kind = _flags.BPM
+    value = 0
+
+    def __init__(self, time, kind, value):
+        self.time, self.kind, self.value = time, kind, value
+
+    def __repr__(self):
+        return '<SyncEvent {} = {} {}>'.format(self.time, self.kind.value,
+                                               self.value)
+
+    def __str__(self):
+        return '  {} = {} {}'.format(self.time, self.kind.value, self.value)
+
+    def __cmp__(self, other):
+        if not isinstance(other, (Note, Event, SyncEvent)):
+            raise TypeError('Cannot compare SyncEvent with {.__name__}'
+                            .format(type(other)))
+        return (-1
+                if self.time < other.time
+                else (1
+                      if self.time > other.time
+                      else 0
+                )
+        )
+
+    def __lt__(self, other):
+        return self.__cmp__(other) < 0
+
+    def __le__(self, other):
+        return self.__cmp__(other) <= 0
+
+    def __eq__(self, other):
+        return self.__cmp__(other) == 0
+
+    def __ne__(self, other):
+        return self.__cmp__(other) != 0
+
+    def __gt__(self, other):
+        return self.__cmp__(other) > 0
+
+    def __ge__(self, other):
+        return self.__cmp__(other) >= 0

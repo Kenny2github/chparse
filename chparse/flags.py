@@ -6,10 +6,14 @@ class NoteTypes(Enum):
     EVENT = 'E'
     NOTE = 'N'
     STAR = 'S'
+    TIME_SIGNATURE = 'TS'
+    BPM = 'B'
 
 EVENT = NoteTypes.EVENT
 NOTE = NoteTypes.NOTE
 STAR = NoteTypes.STAR
+TIME_SIGNATURE = NoteTypes.TIME_SIGNATURE
+BPM = NoteTypes.BPM
 
 class Flags(IntFlag):
     """Possible Note flags."""
