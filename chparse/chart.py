@@ -31,3 +31,24 @@ class Chart(object):
         """Remove an Instrument from the Chart."""
         self._check_type(inst, Instrument)
         del self.instruments[inst.difficulty][inst.kind]
+
+    def dump(self, fileobj):
+        fileobj.write('[' + flags.METADATA.value + ']\n')
+        fileobj.write('{\n')
+        for key, value in self.__dict__.items():
+            if key.startswith('_'):
+                continue
+            fileobj.write('  {} = {}\n'.format(
+                key, (('"' + value + '"')
+                      if isinstance(value, str)
+                      else value)
+            ))
+        fileobj.write('}\n\n')
+        for inst in self.instruments[flags.NA].values():
+            fileobj.write(str(inst) + '\n\n')
+
+        for d, diffic in self.instruments.items():
+            if d == flags.NA:
+                continue #already done
+            for inst in diffic.values():
+                fileobj.write(str(inst) + '\n\n')

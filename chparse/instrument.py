@@ -41,7 +41,7 @@ class Instrument(list):
             result += '}'
             return result
         result = '['
-        result += self.difficulty.value
+        result += self.difficulty.value or ''
         result += self.kind.value
         result += ']\n{\n'
         for note in self:

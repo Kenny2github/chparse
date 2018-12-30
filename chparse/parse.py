@@ -67,7 +67,7 @@ def _parse_raw_inst(fileobj, first_line):
                 continue
             match = re.search(r'([0-9]+)\s*=\s*([A-Z]{1,2})\s+([0-9]+)', line)
             time = int(match.group(1))
-            kind = match.group(2)
+            kind = flags.NoteTypes(match.group(2))
             value = int(match.group(3))
             inst.append(SyncEvent(time, kind, value))
             inst.sort()
@@ -106,20 +106,21 @@ def _parse_inst(fileobj, first_line):
             time, kind, raw_fret, length = match.groups()
             time, raw_fret, length = int(time), int(raw_fret), int(length)
             if inst.kind in (flags.GHL_GUITAR, flags.GHL_BASS):
-                extraflag = flags.GHLIVE
+                extraflags = {flags.GHLIVE}
             else:
-                extraflag = flags.NONE
-            if (extraflag == flags.GHLIVE and raw_fret <= 5) or (raw_fret <= 4):
+                extraflags = set()
+            if (flags.GHLIVE in extraflags and raw_fret <= 5) or (raw_fret <= 4):
                 inst.append(Note(time, kind=flags.NoteTypes(kind),
                                  fret=raw_fret, length=length,
-                                 flag=extraflag))
+                                 flags=extraflags))
             elif flags.Flags(raw_fret) == flags.OPEN:
+                extraflags.add(flags.OPEN)
                 inst.append(Note(time, kind=flags.NoteTypes(kind),
                                  fret=0, length=length,
-                                 flag=flags.OPEN | extraflag))
+                                 flags=extraflags))
             else:
-                flag = flags.Flags(raw_fret) | extraflag
-                inst[-1].flags = flag
+                inst[-1].flags |= extraflags
+                inst[-1].flags.add(flags.Flags(raw_fret))
         else:
             time, kind, evt = re.search(r'([0-9]+)\s*=\s*(E)\s+"?([a-zA-Z]+)"?',
                                         line).groups()
@@ -127,19 +128,4 @@ def _parse_inst(fileobj, first_line):
     return inst
 
 def dump(chart, fileobj):
-    fileobj.write('[' + flags.METADATA.value + ']\n')
-    fileobj.write('{\n')
-    for key, value in chart.__dict__.items():
-        if key.startswith('_'):
-            continue
-        fileobj.write('  {} = {}\n'.format(
-            key, ((('"' + value + '"') if ' ' in value else value)
-                  if isinstance(value, str)
-                  else value)
-        ))
-    fileobj.write('}\n\n')
-    fileobj.write(chart._raw_sync_track + '\n')
-    for diffic in (flags.NA, flags.EASY, flags.MEDIUM,
-                   flags.HARD, flags.EXPERT):
-        for kind, inst in chart.instruments[diffic].items():
-            fileobj.write(str(inst) + '\n\n')
+    chart.dump(fileobj)

@@ -40,15 +40,15 @@ class Note(_BaseNote):
     kind = _flags.NOTE
     fret = 0
     length = 0
-    flags = _flags.NONE
+    flags = set()
 
     def __init__(self, time, kind=_flags.NOTE,
-                 fret=0, length=0, flag=_flags.NONE):
+                 fret=0, length=0, flags=None):
         self.time = time
         self.kind = kind
         self.fret = fret
         self.length = length
-        self.flags = flag
+        self.flags = flags or set()
 
     def __repr__(self):
         result = '<Note: '
@@ -71,21 +71,16 @@ class Note(_BaseNote):
             result += str(_flags.OPEN.value) #pylint: disable=no-member
         else:
             result += str(self.fret)
-        result += ' '
-        result += str(self.length)
-        if self.is_open:
-            return result
-        result2 = '  ' + str(self.time)
-        result2 += ' = '
-        result2 += self.kind.value + ' '
-        if self.is_tap:
-            result2 += str(_flags.TAP.value)
-        elif self.is_forced:
-            result2 += str(_flags.FORCED.value)
-        else: #pylint: enable=no-member
-            return result
-        result2 += ' 0'
-        result += '\n' + result2
+        result += ' ' + str(self.length)
+        for flag in self.flags:
+            if flag == _flags.OPEN:
+                continue #not a flag but a note
+            result2 = '  ' + str(self.time)
+            result2 += ' = '
+            result2 += self.kind.value + ' '
+            result2 += str(flag.value)
+            result2 += ' ' + str(self.length)
+            result += '\n' + result2
         return result
 
     @property
@@ -121,10 +116,10 @@ class Event(_BaseNote): #pylint: disable=too-few-public-methods
         self.event = evt
 
     def __repr__(self):
-        return '<Event {} = E {}>'.format(self.time, self.event)
+        return '<Event {} = E "{}">'.format(self.time, self.event)
 
     def __str__(self):
-        return '  {} = E {}'.format(self.time, self.event)
+        return '  {} = E "{}"'.format(self.time, self.event)
 
 class SyncEvent(_BaseNote):
     """Represents the special TS and B notes in the SyncTrack instrument."""
