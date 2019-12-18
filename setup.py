@@ -22,12 +22,12 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Text Processing :: Markup',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.6'
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7'
     ],
     keywords='file format parser',
     packages=['chparse'],
-    python_requires='>=2.7',
+    python_requires='>=3.6',
     test_suite='nose.collector',
     tests_require=['nose'],
 )

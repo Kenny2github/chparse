@@ -1,7 +1,7 @@
 """Contains the Note class."""
 from . import flags as _flags
 
-class _BaseNote(object):
+class _BaseNote:
     """Represents anything resembling a note."""
     time = 0
 
@@ -9,12 +9,12 @@ class _BaseNote(object):
         if not isinstance(other, _BaseNote):
             raise TypeError('Cannot compare Note with {.__name__}'
                             .format(type(other)))
-        return (-1
-                if self.time < other.time
-                else (1
-                      if self.time > other.time
-                      else 0
-                )
+        return (
+            -1 if self.time < other.time
+            else (
+                1 if self.time > other.time
+                else 0
+            )
         )
 
     def __lt__(self, other):

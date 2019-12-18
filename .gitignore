@@ -1,6 +1,6 @@
 *.chart
 !chparse/tests/Test.chart
-*.egg-info
+*.egg*
 __pycache__/
 build/
 dist/

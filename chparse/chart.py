@@ -2,7 +2,7 @@
 from .instrument import Instrument
 from . import flags
 
-class Chart(object):
+class Chart:
     """Represents an entire chart."""
     instruments = {
         flags.EXPERT: {},
@@ -11,6 +11,23 @@ class Chart(object):
         flags.EASY: {},
         flags.NA: {}
     }
+
+    @property
+    def events(self):
+        """Events for the Chart, such as sections or lyrics
+
+        This is a shortcut for chart.instruments[flags.NA][flags.EVENTS]
+        """
+        return self.instruments[flags.NA][flags.EVENTS]
+
+    @property
+    def sync_track(self):
+        """The "sync track" for the Chart.
+        Includes time signature and BPM events.
+
+        This is a shortcut for chart.instruments[flags.NA][flags.SYNC]
+        """
+        return self.instruments[flags.NA][flags.SYNC]
 
     def __init__(self, metadata):
         self.__dict__.update(metadata)
@@ -33,6 +50,7 @@ class Chart(object):
         del self.instruments[inst.difficulty][inst.kind]
 
     def dump(self, fileobj):
+        """Dump the Chart to a file (or object with a write() method)."""
         fileobj.write('[' + flags.METADATA.value + ']\n')
         fileobj.write('{\n')
         for key, value in self.__dict__.items():
@@ -47,8 +65,8 @@ class Chart(object):
         for inst in self.instruments[flags.NA].values():
             fileobj.write(str(inst) + '\n\n')
 
-        for d, diffic in self.instruments.items():
-            if d == flags.NA:
+        for dif, diffic in self.instruments.items():
+            if dif == flags.NA:
                 continue #already done
             for inst in diffic.values():
                 fileobj.write(str(inst) + '\n\n')

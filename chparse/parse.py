@@ -18,7 +18,7 @@ def load(fileobj):
     chart = None
     line = True
     while line:
-        line = fileobj.readline()
+        line = fileobj.readline().strip().strip('\ufeff')
         if not line:
             break
         if line.startswith('['):
@@ -45,9 +45,9 @@ def _parse_raw_inst(fileobj, first_line):
     if raw_name == flags.METADATA:
         line = ''
         data = {}
-        while line.strip() != '}':
-            line = fileobj.readline()
-            if line.strip() in '{}':
+        while line != '}':
+            line = fileobj.readline().strip()
+            if line in '{}':
                 continue
             match = re.search(r'([A-Za-z]+[A-Za-z0-9_]*)\s*=\s*(.*)', line)
             name = match.group(1)
@@ -61,9 +61,9 @@ def _parse_raw_inst(fileobj, first_line):
     if raw_name == flags.SYNC:
         inst = Instrument(kind=raw_name, difficulty=flags.NA)
         line = ''
-        while line.strip() != '}':
-            line = fileobj.readline()
-            if line.strip() in '{}':
+        while line != '}':
+            line = fileobj.readline().strip()
+            if line in '{}':
                 continue
             match = re.search(r'([0-9]+)\s*=\s*([A-Z]{1,2})\s+([0-9]+)', line)
             time = int(match.group(1))
@@ -75,9 +75,9 @@ def _parse_raw_inst(fileobj, first_line):
     if raw_name == flags.EVENTS:
         inst = Instrument(kind=raw_name, difficulty=flags.NA)
         line = ''
-        while line.strip() != '}':
-            line = fileobj.readline()
-            if line.strip() in '{}':
+        while line != '}':
+            line = fileobj.readline().strip()
+            if line in '{}':
                 continue
             match = re.search(r'([0-9]+)\s*=\s*'
                               + flags.EVENT.value
@@ -88,6 +88,7 @@ def _parse_raw_inst(fileobj, first_line):
             inst.append(Event(time, evt))
             inst.sort() #just in case
         return inst
+    return None
 
 def _parse_inst(fileobj, first_line):
     raw_name = re.match(r'\[([A-Za-z]+)\]', first_line).group(1)
@@ -96,9 +97,9 @@ def _parse_inst(fileobj, first_line):
     inst = Instrument(kind=flags.Instruments(kind),
                       difficulty=flags.Difficulties(difficulty))
     line = ''
-    while line.strip() != '}':
-        line = fileobj.readline()
-        if line.strip() in '{}':
+    while line != '}':
+        line = fileobj.readline().strip()
+        if line in '{}':
             continue
         match = re.search(r'([0-9]+)\s*=\s*([A-Z])\s+'
                           + r'([0-9]+)\s+([0-9]+)', line)
@@ -128,4 +129,5 @@ def _parse_inst(fileobj, first_line):
     return inst
 
 def dump(chart, fileobj):
+    """Dump a Chart to a file (or other object with a write() method)."""
     chart.dump(fileobj)

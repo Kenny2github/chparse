@@ -25,7 +25,8 @@ class Instrument(list):
             try:
                 self.extend(notes)
             except TypeError:
-                raise
+                raise TypeError('expected iterable notes list, got '
+                                + type(notes).__name__) from None
 
     def __repr__(self):
         first_notes = list(self[:5])
@@ -59,21 +60,13 @@ class Instrument(list):
             ))
 
     def append(self, note, kind=()):
-        try:
-            self._check_note(note, kind)
-        except TypeError:
-            raise
-
+        self._check_note(note, kind)
         super(__class__, self).append(note)
 
     def add(self, note, kind=()):
         """Add a note to this track.
         It will be automatically inserted in the correct position.
         """
-        try:
-            self._check_note(note, kind)
-        except TypeError:
-            raise
-
+        self._check_note(note, kind)
         self.append(note)
         self.sort()
