@@ -122,7 +122,7 @@ class Event(_BaseNote): #pylint: disable=too-few-public-methods
         return '  {} = E "{}"'.format(self.time, self.event)
 
 class SyncEvent(_BaseNote):
-    """Represents the special TS and B notes in the SyncTrack instrument."""
+    """Represents the special TS, A and B notes in the SyncTrack instrument."""
     kind = _flags.BPM
     value = 0
 

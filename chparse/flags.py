@@ -8,6 +8,7 @@ class NoteTypes(Enum):
     STAR = 'S'
     TIME_SIGNATURE = 'TS'
     BPM = 'B'
+    ANCHOR = 'A'
 
 EVENT = NoteTypes.EVENT
 NOTE = NoteTypes.NOTE
