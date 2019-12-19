@@ -30,4 +30,4 @@ Assuming your .chart file is named "notes.chart"...
 from .parse import load, dump
 from .flags import * #pylint: disable=wildcard-import
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
