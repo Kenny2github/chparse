@@ -3,14 +3,6 @@ from .instrument import Instrument
 from . import flags
 
 class Chart:
-    """Represents an entire chart."""
-    instruments = {
-        flags.EXPERT: {},
-        flags.HARD: {},
-        flags.MEDIUM: {},
-        flags.EASY: {},
-        flags.NA: {}
-    }
 
     @property
     def events(self):
@@ -31,6 +23,14 @@ class Chart:
 
     def __init__(self, metadata):
         self.__dict__.update(metadata)
+        self.instruments = {
+            flags.EXPERT: {},
+            flags.HARD: {},
+            flags.MEDIUM: {},
+            flags.EASY: {},
+            flags.NA: {}
+        }
+
 
     @staticmethod
     def _check_type(obj, cls):
